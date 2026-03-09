@@ -1,0 +1,5 @@
+interface:
+  display_name: "water战法"
+  short_description: "沪深A股Water战法分析：买卖点、仓位金额、收益率复盘与红B绿S K线标注。"
+  default_prompt: "Use $water-zhanfa to analyze a Shanghai/Shenzhen A-share, output buy/sell timing with position amounts, calculate current return, and generate a K-line chart with red B and green S markers."
+
