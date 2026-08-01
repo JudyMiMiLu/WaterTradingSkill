@@ -103,6 +103,16 @@ python3 scripts/update_holdings_template.py
 - 版本变更记录在对应 SKILL.md 头部 + 本 README 版本表
 - `main` 分支针对 Hermes Agent；其他 Agent（WorkBuddy/豆包等）适配在 `adapt-other-agents` 分支，两分支保持方法内核同步
 
+## 📄 开源协议
+
+本项目采用 **MIT License**（见 [LICENSE](LICENSE)）。
+
+**使用前提：**
+- 使用、修改、分发本项目或其衍生作品时，**必须保留版权声明与作者署名**（Copyright © 2026 JudyMiMiLu），不得删除、遮盖或篡改
+- 衍生作品应注明"基于 WaterTradingSkill 修改"并保留原始仓库引用
+- 删除/篡改署名属于对著作权人署名权的侵犯，作者保留依法追责的权利
+- 本项目为投资**分析方法与工具**，按 MIT 协议"AS IS"提供，不构成任何投资建议，作者不对使用后果承担责任
+
 ## ⚠️ 免责声明
 
 本仓库技能为投资**分析方法与工具**，不构成任何投资建议。股市有风险，决策需谨慎。

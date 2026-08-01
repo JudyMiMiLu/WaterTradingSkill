@@ -1,0 +1,36 @@
+MIT License
+
+Copyright (c) 2026 JudyMiMiLu
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## 署名与版权声明（重要，构成 MIT 协议的有效组成部分）
+
+依据 MIT License 之规定，使用、复制、修改、分发本软件或其衍生作品时，
+**必须完整保留上述版权声明（Copyright (c) 2026 JudyMiMiLu）与本协议全文**，
+不得删除、遮盖或篡改署名信息。
+
+- 未经著作权人书面许可，**不得**以任何形式删除、修改或伪造本项目的
+  原始作者署名、版权归属或来源标识。
+- 对署名进行删除、篡改、冒名顶替等行为，构成对著作权人署名权的侵犯，
+  著作权人保留依法追究侵权责任（含停止侵害、赔礼道歉、赔偿损失）的权利。
+- 衍生作品应在显著位置注明"基于 WaterTradingSkill 修改"，并保留
+  对原始作者及其原始仓库（https://github.com/JudyMiMiLu/WaterTradingSkill）的引用。
