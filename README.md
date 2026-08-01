@@ -1,6 +1,6 @@
 # WaterTradingSkill ｜ 水战法投资技能集
 
-面向 A 股投资者的 **Hermes Agent 技能集**，一套从"交易战法"到"量化打分"再到"行情数据自动化"的完整投资工作流。
+面向 A 股投资者的 **AI Agent 技能集**（Hermes / WorkBuddy / 豆包等），一套从"交易战法"到"量化打分"再到"行情数据自动化"的完整投资工作流。
 
 > 版本：v2.0 ｜ 更新：2026-08-01 ｜ 仓库：[JudyMiMiLu/WaterTradingSkill](https://github.com/JudyMiMiLu/WaterTradingSkill)
 
@@ -29,21 +29,35 @@ a-share-market-data（工具层：行情拉取 + 飞书表格 + cron 监控）
 
 ### 前置条件
 
-- [Hermes Agent](https://hermes-agent.nousresearch.com)（CLI 或桌面版）
+- 任意 AI Agent 客户端（支持技能/提示词注入即可）：
+  - **Hermes Agent**（本分支默认）：CLI 或桌面版
+  - **WorkBuddy / 豆包 / Kimi / 其他普通产品**：请切换到 `adapt-other-agents` 分支获取通用适配版
 - [lark-cli](https://open.feishu.cn)（如需飞书多维表格）：`npm install -g @larksuite/cli` + `npx -y skills add https://open.feishu.cn --skill -y`
+- Python 3.10+（运行数据脚本）
 
-### 安装技能
+### 安装技能（Hermes 版）
 
-把 `skills/` 下的三个目录复制到 `~/.hermes/skills/`：
+把 `skills/` 下的目录复制到 `~/.hermes/skills/`：
 
 ```bash
 git clone git@github.com:JudyMiMiLu/WaterTradingSkill.git
-cp -r WaterTradingSkill/skills/* ~/.hermes/skills/
+cd WaterTradingSkill
+cp -r skills/investment-advisor ~/.hermes/skills/
+cp -r skills/a-share-market-data ~/.hermes/skills/
 ```
 
 重启 Hermes 会话后，向 agent 说：
 - "分析我的持仓组合" / "XX 能不能买" → investment-advisor
 - "更新持仓行情" → a-share-market-data
+
+### 其他 Agent 用户（WorkBuddy / 豆包 等）
+
+```bash
+git clone git@github.com:JudyMiMiLu/WaterTradingSkill.git
+git checkout adapt-other-agents
+```
+
+该分支的 `SKILL.md` 与提示词格式已适配通用 Agent（见分支内 README 的适配说明）。
 
 ---
 
@@ -83,10 +97,11 @@ python3 scripts/update_holdings_template.py
 
 ## 📝 贡献规范
 
-- 技能文件结构遵循 Hermes skill 规范（SKILL.md frontmatter + scripts/ + references/）
+- 技能文件结构遵循通用 AI Agent skill 规范（`SKILL.md` frontmatter + scripts/ + references/），适配各 Agent 时只改格式外壳，不改方法内核
 - 中文内容统一 UTF-8 编码
 - 禁止提交个人持仓、API token、手机号等敏感数据（模板用 `<your_xxx>` 占位）
 - 版本变更记录在对应 SKILL.md 头部 + 本 README 版本表
+- `main` 分支针对 Hermes Agent；其他 Agent（WorkBuddy/豆包等）适配在 `adapt-other-agents` 分支，两分支保持方法内核同步
 
 ## ⚠️ 免责声明
 

@@ -5,7 +5,6 @@ description: >
   Covers the Sina Finance HTTP API (verified working), akshare pitfalls, and Yahoo Finance
   limitations. Use when the user needs current stock prices, intraday quotes, or market data
   for A-share (沪深) securities. Pairs with the investment-advisor skill for portfolio analysis.
-agent_created: true
 ---
 
 # A 股实时行情数据获取
@@ -26,7 +25,7 @@ agent_created: true
 | 1 | **新浪财经 HTTP API** | ✅ 可用 | 实时行情，批量拉取，无需安装 |
 | 2 | akshare（东财接口） | ❌ 不可用 | 非大陆 IP 被拒（RemoteDisconnected） |
 | 3 | akshare（新浪全市场） | ⚠️ 慢 | `stock_zh_a_spot()` 需分 70 页，>30s |
-| 4 | Hermes 自带 stocks skill | ❌ 不可用 | 走 Yahoo Finance，服务器访问超时 |
+| 4 | Agent 自带 stocks skill（如 Hermes） | ⚠️ 视环境 | 多走 Yahoo Finance，服务器访问常超时 |
 
 ## 新浪财经 API（首选）
 
@@ -65,7 +64,7 @@ var hq_str_sh600030="中信证券,今开,昨收,最新价,最高,最低,买一,�
 见 `scripts/fetch_quotes.py`，可直接运行：
 
 ```bash
-python3 ~/.hermes/skills/a-share-market-data/scripts/fetch_quotes.py sh600030 sz000858 sh601888
+python3 <skill_dir>/scripts/fetch_quotes.py sh600030 sz000858 sh601888
 ```
 
 支持任意数量股票代码，输出表格。
@@ -231,10 +230,16 @@ lark-cli base +record-upsert \
 - **字段更新**：`+field-update` 是 PUT 全量语义（不是 patch），需带完整字段 JSON + `--yes`（高风险）
 - **脚本用字段 ID 而非字段名**：字段名可能改（如 现价→现价¥），用 `+field-list` 动态解析 `名称->ID` 映射，改名不炸脚本（见模板 v2）
 
-**cron job 定时更新：**
+**cron job 定时更新（通用方案）：**
 
 ```bash
-# 脚本放在 ~/.hermes/scripts/ 下，cron 创建时只传文件名
+# 任意 cron 工具（Linux crontab / macOS launchd / Windows 任务计划 / Hermes cron）均可
+# 脚本放在任意目录，cron 创建时指向脚本绝对路径
+30 15 * * 1-5  python3 /path/to/update_holdings.py
+```
+
+Hermes 用户可用内置 cron：
+```bash
 hermes cron create \
   --schedule "30 15 * * 1-5" \
   --script update_holdings.py \
@@ -271,6 +276,6 @@ hermes cron create \
 
 ## 已知不工作的方案
 
-- **Yahoo Finance**（包括 Hermes 自带 stocks skill）：从服务器访问超时
+- **Yahoo Finance**（包括部分 Agent 自带的 stocks skill）：从国内服务器访问常超时
 - **akshare 东财接口**（`stock_zh_a_spot_em`、`stock_zh_a_hist`、`stock_bid_ask_em`）：RemoteDisconnected
 - **akshare 新浪全市场**（`stock_zh_a_spot`）：可工作但需 30s+ 拉全市场 70 页
