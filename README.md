@@ -90,7 +90,7 @@ python3 scripts/update_holdings_template.py
 
 ## 📄 开源协议
 
-本项目采用 **MIT License**（见 [LICENSE](LICENSE)）。
+本项目采用 **MIT License**（见 [LICENSE](LICENSE)），署名与版权保护条款见 [NOTICE.md](NOTICE.md)。
 
 **使用前提：**
 - 使用、修改、分发本项目或其衍生作品时，**必须保留版权声明与作者署名**（Copyright © 2026 JudyMiMiLu），不得删除、遮盖或篡改
