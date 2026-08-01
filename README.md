@@ -2,7 +2,27 @@
 
 面向 A 股投资者的 **AI Agent 技能集**（Hermes / WorkBuddy / 豆包 等），一套从"交易战法"到"量化打分"再到"行情数据自动化"的完整投资工作流。
 
-> 版本：v2.0.2 ｜ 更新：2026-08-01 ｜ 仓库：[JudyMiMiLu/WaterTradingSkill](https://github.com/JudyMiMiLu/WaterTradingSkill) ｜ 协议：MIT
+> 版本：v2.0.3 ｜ 更新：2026-08-01 ｜ 仓库：[JudyMiMiLu/WaterTradingSkill](https://github.com/JudyMiMiLu/WaterTradingSkill) ｜ 协议：MIT
+
+---
+
+## 📑 目录
+
+- [📦 包含技能](#-包含技能)
+  - [技能关系](#技能关系)
+- [🌿 分支结构与两种形式](#-分支结构与两种形式)
+  - [两种形式差异对照](#两种形式差异对照)
+  - [我该用哪个？](#我该用哪个)
+- [🚀 快速开始](#-快速开始)
+  - [前置条件](#前置条件)
+  - [安装技能](#安装技能)
+- [📖 各技能使用说明](#-各技能使用说明)
+  - [1. investment-advisor（投资方法论）](#1-investment-advisor投资方法论)
+  - [2. a-share-market-data（行情数据自动化）](#2-a-share-market-data行情数据自动化)
+- [🗂 版本管理](#-版本管理)
+- [📝 贡献规范](#-贡献规范)
+- [📄 开源协议](#-开源协议)
+- [⚠️ 免责声明](#免责声明)
 
 ---
 
@@ -115,6 +135,7 @@ python3 scripts/update_holdings_template.py
 | v2.0 | 2026-08-01 | water-zhanfa 并入 investment-advisor（龙头参考期/逐笔明细/节奏模板），删 water-zhanfa |
 | v2.0.1 | 2026-08-01 | 开源发布：MIT License + NOTICE 署名保护 |
 | v2.0.2 | 2026-08-01 | README 统一为单份（两种形式差异并入），main 主维护，适配分支只做个性化适配 |
+| v2.0.3 | 2026-08-01 | README 新增顶部目录（锚点跳转） |
 
 ## 📝 贡献规范
 
@@ -136,6 +157,6 @@ python3 scripts/update_holdings_template.py
 - 删除/篡改署名属于对著作权人署名权的侵犯，作者保留依法追责的权利
 - 本项目为投资**分析方法与工具**，按 MIT 协议"AS IS"提供，不构成任何投资建议，作者不对使用后果承担责任
 
-## ⚠️ 免责声明
+## ⚠️ 免责声明 <a id="免责声明"></a>
 
 本仓库技能为投资**分析方法与工具**，不构成任何投资建议。股市有风险，决策需谨慎。
