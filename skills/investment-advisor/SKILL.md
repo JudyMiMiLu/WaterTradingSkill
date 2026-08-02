@@ -273,6 +273,13 @@ hermes cron create --schedule "30 15 * * 1-5" --script update_holdings.py \
 
 详细重建方案见 `references/bitable-table-rebuild.md`。
 
+## 已知不工作的方案（踩坑记录，勿再试）
+
+- **Yahoo Finance**（包括部分 Agent 自带的 stocks skill）：从国内服务器访问常超时
+- **akshare 东财接口**（`stock_zh_a_spot_em`、`stock_zh_a_hist`、`stock_bid_ask_em`）：非大陆 IP RemoteDisconnected
+- **akshare 新浪全市场**（`stock_zh_a_spot`）：可工作但需 30s+ 拉全市场 70 页
+- **Playwright/浏览器直连 xiaohongshu.com**：服务器 IP 必触发 300012 IP 风控（千帆 cookie 不跨域；如需小红书数据走 web_extract 代理 + 分批限速）
+
 ## 数据接口（用户当次输入）
 
 读取用户提供的持仓 CSV（模板见 `references/holdings_template.csv`）。提供方式二选一：
