@@ -2,7 +2,7 @@
 
 面向 A 股投资者的 **AI Agent 技能**，一套"量化打分 + 行情数据自动化"完整投资工作流。
 
-> 版本：v3.0 ｜ 更新：2026-08-01 ｜ 仓库：[JudyMiMiLu/WaterTradingSkill](https://github.com/JudyMiMiLu/WaterTradingSkill)
+> 版本：v3.1 ｜ 更新：2026-08-01 ｜ 仓库：[JudyMiMiLu/WaterTradingSkill](https://github.com/JudyMiMiLu/WaterTradingSkill)
 
 ---
 
@@ -10,12 +10,12 @@
 
 | 技能 | 版本 | 定位 | 回答什么 |
 |------|------|------|----------|
-| [investment-advisor](skills/investment-advisor/) | v3.0 | 投资方法论 + 数据工具 | 五步框架分析、WATER/233 打分、调仓纪律、行情查询、飞书表格自动更新 |
+| [investment-advisor](skills/investment-advisor/) | v3.1 | 投资方法论 + 数据工具 | 五步框架分析、WATER/233 打分、调仓纪律、行情查询、飞书表格自动更新 |
 
 ### 技能说明
 
 ```
-investment-advisor v3.0
+investment-advisor v3.1
 ├── 方法论层：五步框架（趋势-位置-打分-角色-仓位）+ 量化打分 + 调仓纪律 + 复盘
 └── 数据层：新浪实时行情 + 腾讯历史K线 + 飞书多维表格自动化 + cron 定时更新
 ```
@@ -80,7 +80,8 @@ python3 scripts/update_holdings_template.py
 | v1.1 | 2026-08-01 | 编码修复；新增 investment-advisor v1.4、a-share-market-data v2.0 |
 | v2.0 | 2026-08-01 | water-zhanfa 并入 investment-advisor |
 | v2.0.1 | 2026-08-01 | 添加 MIT License 与署名保护（NOTICE.md） |
-| v3.0 | 2026-08-01 | **a-share-market-data 合并入 investment-advisor**，单一 skill 一体化 |
+| v3.0 | 2026-08-01 | a-share-market-data 合并入 investment-advisor，单一 skill 一体化 |
+| v3.1 | 2026-08-01 | 斜率三档碗判定 + 判断权行使补充维度 |
 
 ## 📄 开源协议
 
