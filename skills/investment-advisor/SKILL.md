@@ -1,23 +1,24 @@
 ---
 name: investment-advisor
 description: >
-  基于"趋势-位置-打分-角色-仓位"五步框架的通用投资助理。用于组合体检、标的买点/卖点准入检查、
-  调仓纪律核对、结构化复盘。持仓与现金来自用户当次输入（CSV 或对话），不写死任何个人数据。
-  当用户要做投资组合分析、问某只票能不能买/卖、想做仓位管理或复盘时使用。
-agent_created: true
+  基于"趋势-位置-打分-角色-仓位"五步框架的通用投资助理，内置 A 股行情数据能力。
+  用于组合体检、标的买点/卖点准入检查、调仓纪律核对、结构化复盘；
+  同时提供新浪/腾讯行情 API 接入与飞书多维表格自动更新。
+  持仓与现金来自用户当次输入（CSV 或对话），不写死任何个人数据。
+  当用户要做投资组合分析、问某只票能不能买/卖、想做仓位管理、复盘或更新行情时使用。
 ---
 
-# 投资助理（通用方法层）
+# 投资助理（方法 + 数据一体化）
 
-> 版本：v2.0 ｜ 日期：2026-08-01 ｜ 相对 v1.4：并入 water-zhanfa 精华——新增「龙头属性与横盘参考期」(scoring_rules)、「逐笔买卖明细」「下一次动作预测」「蓄水池轮动节奏模板(案例参考)」；v1.4 新增熊市按跌幅升级仓位细化规则
-> 本 skill 只承载"方法"，不承载任何个人的真实持仓、成本、现金。这些数据来自用户当次输入。
+> 版本：v3.0 ｜ 日期：2026-08-01 ｜ 相对 v2.0：合并 a-share-market-data——新增「A股行情数据」章节（新浪/腾讯 API、飞书多维表格自动化、lark-cli 踩坑全集），脚本与 references 一并迁入；v2.0 并入 water-zhanfa 精华（龙头参考期/逐笔明细/节奏模板）
+> 本 skill 只承载"方法 + 工具"，不承载任何个人的真实持仓、成本、现金。这些数据来自用户当次输入。
 > 它是"方法共享 + 用户自带上下文"的投资助理，不是把某一个人的账户写死在知识库里的聊天机器人。
 
 ## 身份与边界
 
 - 你是基于既定投资框架工作的投资助理，负责组合管理、标的评估、调仓纪律核对与复盘。
 - 你不负责短线预测，不给确定性买卖建议；输出的是"触发复核的信号"，最终动作由用户按框架拍板。
-- 本 skill 不依赖实时行情，日线收盘价即可；是否接自动拉价是扩展点（见末尾）。
+- 行情数据来自内置工具（新浪实时 / 腾讯K线 / 飞书表格），日线收盘价即可；不依赖外部订阅。
 
 ## 方法总纲（硬顺序，不可颠倒）
 
@@ -97,13 +98,16 @@ agent_created: true
 ### 触发复核信号（满足任一即提醒）
 
 1. 财报披露日（中报/三季报/年报）：自动复核"基本面没坏"
-2. 现价跌破前低 10.48 或收复年线 18.86：技术面边界事件
+2. 现价跌破前低或收复年线：技术面边界事件
 3. 第六人仓任一股占比 > 5%：角色纪律告警
+
+## 量化打分系统（核心）
 
 详见 `references/scoring_rules.md`（机器可判定版，含参数与示例）。要点：
 
 - **WATER 战法**：判定 A 字 / 调整中 / 碗 / 回调时长 → 0 / 5 / 10 分。
 - **233 年线战法**：算 MA233，看现价偏离度 → 0 / 5 / 10 分（命中多档取最高档）。
+- **龙头属性与横盘参考期**：行业排名前 5 = 龙头（参考期 21 交易日），否则非龙头（63 交易日），禁止 Agent 凭印象判断。
 - **动作纪律（三态）**：
   - 两项均 < 10 分 → 一定不去。
   - 仅一项 ≥ 10 分 → 标注"部分达标，谨慎观察"，不单独给底仓建议。
@@ -159,6 +163,116 @@ agent_created: true
 - 套用到具体标的前，必须用该标的自己的 K 线结构复核（WATER 打分）
 - 模板中的具体月份只对长江电力有效，其他标的仅借鉴"阶段顺序"
 
+---
+
+# A 股行情数据（v3.0 并入，原 a-share-market-data）
+
+> 完整链路：`新浪/腾讯 API -> Python 脚本 -> lark-cli -> 飞书多维表格 -> 调仓触发线检查 -> 定时推送`
+
+## 实时行情（新浪，免费无 key）
+
+```python
+import requests
+codes = ['sh600030', 'sz000858', 'sh601888']  # 沪 sh / 深 sz
+url = f"https://hq.sinajs.cn/list={','.join(codes)}"
+headers = {"Referer": "https://finance.sina.com.cn"}  # 必须带 Referer！
+r = requests.get(url, headers=headers, timeout=10)
+```
+
+返回格式 `var hq_str_sh600030="中信证券,今开,昨收,最新价,最高,最低,..."`，字段索引：
+- `[0]`名称 `[1]`今开 `[2]`昨收 `[3]`最新价 `[4]`最高 `[5]`最低 `[8]`成交量 `[9]`成交额
+- 涨跌幅 = `(最新价 - 昨收) / 昨收 * 100`
+- 盘外时间返回上一交易日收盘；部分 ETF 可能无数据（换源或手动补）
+
+## 历史 K 线（腾讯首选 / 新浪备选，已验证 250 根）
+
+```python
+# 腾讯（首选）：每根 [日期, 开, 收, 高, 低, 成交量]，注意收在 index 2！
+r = requests.get("https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh600438,day,,,250,qfq",
+                 headers={"Referer": "https://gu.qq.com/"}, timeout=10)
+klines = r.json()['data']['sh600438'].get('day') or r.json()['data']['sh600438'].get('qfqday')
+
+# 新浪（备选）：返回 [{"day","open","high","low","close","volume"}]，键是字符串需 float()
+r = requests.get("https://quotes.sina.cn/cn/api/json_v2.php/CN_MarketDataService.getKLineData?symbol=sh600438&scale=240&ma=no&datalen=250",
+                 headers={"Referer": "https://finance.sina.com.cn"}, timeout=10)
+```
+
+- 均按时间**升序**（最旧在前），计算前要 `list(reversed(...))` 得 P[0]=最新
+- MA233/回撤计算见 `references/scoring_rules.md`
+
+## 飞书多维表格持仓监控（已实现）
+
+**推荐表结构（2026-08-01 实战验证）：**
+
+```
+序号(主字段) → 名称 → 代码 → 角色 → 父记录 → 现价¥ → 今日涨跌幅% → 成本价¥ → 数量
+→ 持仓市值¥ → 持仓成本¥ → 浮盈亏¥ → 浮盈亏比% → 占总资产% → 建仓日期 → 昨收价¥ → 更新时间
+```
+
+关键设计决策：
+- **主字段 = 序号**：主字段（索引列）不能移动/隐藏/删除，用序号避免代码列锁死在第一列
+- **角色做父记录**：建 5 条角色父记录（中锋/控球后卫/前锋/第六人/现金），个股通过「父记录」link 字段（自关联，`link_table` 指向本表）关联，视图按父记录分组 = 父子层级
+- **金额字段**：`style: {"type":"currency","precision":2,"currency_code":"CNY"}` + 表头加 ¥
+- **比率字段**（今日涨跌幅/浮盈亏比/占总资产）：`style: {"type":"plain","precision":2,"percentage":true,"thousands_separator":true}`
+- **涨跌颜色**：飞书 UI 条件格式（`<0` 绿、`>0` 红），API 不支持，手动配一次
+- 冗余字段不做：如「今日涨跌」（单股涨跌金额）可由涨跌幅% 替代
+
+**建表流程（角色父记录 + 自关联）：**
+
+```bash
+# 1. 先建表（link 字段需要 table_id，必须第二步加）——--fields 第一个字段 = 主字段
+lark-cli base +table-create --base-token <B> --name "持仓明细" \
+  --fields '[{"name":"序号","type":"text"},{"name":"名称","type":"text"},{"name":"代码","type":"text"},{"name":"角色","type":"select","options":[{"name":"中锋"},{"name":"控球后卫"},{"name":"前锋"},{"name":"第六人"},{"name":"现金"}]},...]' --as user
+# 2. 加自关联父记录字段（link_table 用 table_id，用表名会 800030104 not_found）
+lark-cli base +field-create --base-token <B> --table-id <T> \
+  --json '{"name":"父记录","type":"link","link_table":"<T>"}' --as user
+# 3. 建角色父记录（序号20-24）
+# 4. 个股记录「父记录」= [{"id": <父记录record_id>}]
+# 5. 视图分组
+lark-cli base +view-set-group --base-token <B> --table-id <T> --view-id <V> \
+  --json '{"group_config":[{"field":"父记录","desc":false}]}' --as user
+```
+
+**交易明细表结构：**
+
+```
+日期 → 名称 → 代码 → 动作(建仓/买入/卖出/分红/初始持仓) → 价格¥ → 数量 → 手动金额¥ → 金额¥(公式) → 备注
+```
+
+金额公式字段（自动计算）：`IFS(CONTAIN(LIST("建仓","买入","卖出"), 动作), ROUND(价格*数量,0), 动作="分红", 手动金额, TRUE, 0)`
+
+**lark-cli 踩坑全集：**
+
+- `+record-list --format json` 返回**矩阵格式**（`fields` 列名 + `data` 行数组 + `record_id_list`），不是对象数组；用 `fields.index("代码")` 定位列
+- `+record-upsert --record-id` 更新记录，`--json` 是**顶层 field map**（不包 fields）；**没有 +record-update 命令**
+- 百分比字段传小数（0.0451 = 4.51%）；`--json @file` 要求相对路径（/tmp 被拒）
+- `+record-batch-create` 的 `--json` 是 `{"fields":[...],"rows":[[...]]}`，rows 按 fields 顺序对齐
+- **主字段被 API 强制排第一**，无法用 visible_fields 挪走；要序号第一列必须设为主字段
+- `+field-update` 是 FULL PUT 不是 patch，需 `--yes`；偶发瞬时失败（exit 0 但 ok=false），重试一次即过
+- **批量建表会静默丢字段**：建表后必须 `+field-list` 对照核对，缺了补 `+field-create`
+- **脚本写字段 ID 而非字段名**：字段改名后按名写全挂；用 fldXXX 改名不影响
+
+**cron 定时更新（通用）：**
+
+```bash
+30 15 * * 1-5  python3 /path/to/update_holdings.py
+```
+
+Hermes 用户可用内置 cron：
+```bash
+hermes cron create --schedule "30 15 * * 1-5" --script update_holdings.py \
+  --name "持仓行情每日收盘更新" --deliver origin
+```
+
+## 脚本清单
+
+| 脚本 | 功能 |
+|------|------|
+| `scripts/fetch_quotes.py` | 批量拉新浪实时行情 |
+| `scripts/update_holdings_template.py` | 飞书多维表格每日更新（v2 模板：动态字段 ID 解析，填配置即用） |
+
+详细重建方案见 `references/bitable-table-rebuild.md`。
+
 ## 数据接口（用户当次输入）
 
 读取用户提供的持仓 CSV（模板见 `references/holdings_template.csv`）。提供方式二选一：
@@ -170,7 +284,7 @@ agent_created: true
 
 `代码,名称,角色,市场,数量,成本价,建仓日期,备注`（英文别名：`code,name,role,market,qty,cost,first_buy_date,note`）
 
-- 价格不存表。手动价模式下在 CSV 追加一列`现价`（英文 `current_price`）由用户填；接行情脚本时此列可省略（扩展点，本 skill 不依赖）。
+- 价格不存表。手动价模式下在 CSV 追加一列`现价`（英文 `current_price`）由用户填；接行情脚本时此列可省略。
 - `市场` **仅支持 `A`**（A 股，含 A 股上市 ETF，如恒生科技 ETF 513180）；港美为扩展点，本版暂不支持，填入非 A 值将不被识别。
 - `角色` 取值：中锋 / 控球后卫 / 前锋 / 第六人。
 - `数量` = **当前实际持仓数量**（含建仓后加减的余额，不是首仓数量）；组合体检的市值/占比/集中度据此算。
@@ -188,6 +302,5 @@ agent_created: true
 
 ## 扩展点（未来，非必须）
 
-- **行情接入**：用 akshare 等拉 A 股日线价，替换"用户填现价"。已实现：见 `a-share-market-data` skill（新浪 API + 飞书多维表格自动更新 + 调仓触发线，含通用模板 v2）。
 - **提醒**：配合定时任务 + 飞书推送，触发复核信号（只推触发项，不全量）。
 - **公共版**：本 skill 已通用，发布时只需用户自带 CSV 即可。
